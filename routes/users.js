@@ -9,6 +9,7 @@ const router = express.Router();
 const authMiddleware = require('../middleware/auth');
 const multer = require('multer');
 const mongoose = require('mongoose');
+const nodemailer = require('nodemailer');
 
 const MIME_TYPE_MAP = {
     'image/png': 'png',
@@ -41,7 +42,23 @@ const upload = multer({
         cb(null, true);
     }
 });
-// upload.single('image'),
+
+
+const transporter = nodemailer.createTransport({
+    host: 'smtp.gmail.com',
+    port: 587,
+    secure: false,
+    auth: {
+        user: 'nodejstest1212@gmail.com',
+        pass: '123123hhh'
+    },
+});
+
+
+
+
+
+
 router.post('/', upload.single('image'), async (req, res) => {
 
     console.log(req.body)
@@ -56,13 +73,13 @@ router.post('/', upload.single('image'), async (req, res) => {
         pic: req.file.filename
     });
     if (error) return res.status(200).send({
-        "error": error.details[0].message
+        'error': error.details[0].message
     });
     let user = await User.findOne({
         email: req.body.email
     });
     if (user) return res.status(200).send({
-        "error": "email already exist"
+        'error': "email already exist"
     });
 
 
@@ -78,8 +95,24 @@ router.post('/', upload.single('image'), async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     user.password = await bcrypt.hash(user.password, salt);
     await user.save();
-    res.send({
-        "success": "user created"
+
+    const mailOptions = {
+        from: 'nodejstest1212@gmail.com',
+        to: user.email,
+        subject: 'thank you '+user.name+' for rgister',
+        text: 'this is test mail'
+    
+    }
+
+
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+            console.log(error);
+        }
+        if (!error) return console.log(info);
+    })
+    res.json({
+        success: "user created"
     });
 })
 
@@ -87,6 +120,8 @@ router.post('/', upload.single('image'), async (req, res) => {
 router.post('/authUser', authMiddleware, async (req, res) => {
     const user = await (User.findById(req.user._id).select('-password'));
     if (!user) return res.status(400).send('user not found');
+
+    
     res.send(user);
 })
 module.exports = router;

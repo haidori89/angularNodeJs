@@ -1,0 +1,40 @@
+<div class="container">
+    <div class="register">
+        <h2 class="register-header">Create New Account</h2>
+      <form [formGroup] = "uploadForm" #registerForm="ngForm" (ngSubmit)="register(registerForm.value)" class="register-container" novalidate='!novalidate' autocomplete="off" enctype="multipart/form-data">
+
+        <div class="form-field form-group">
+            <input name="name" id="register-fullname" type="email" class="form-input" placeholder="Name" required minlength="4" formControlName="name">
+            
+        </div>
+        <div class="form-field">
+              <input name="username" id="register-username" type="email" class="form-input" placeholder="UserName" required minlength="6" formControlName="username">
+        </div>
+
+        <div class="form-field">
+          <input name="email" id="register-email" type="email" class="form-input" placeholder="Email" required minlength="6" email  formControlName="email">
+        </div>
+
+        <div class="form-field">
+            <label for="image">Profile Picture</label>
+            <input name="image" id="register-image"  accept="image/*" type="file" class="form-input" required (change)="selectedimage($event)">
+            
+            
+        </div>
+
+        <div class="form-field">
+          <input name="password" id="register-password" type="password" class="form-input" placeholder="Password" required minlength="6" formControlName="password">
+        </div>
+
+        <div *ngIf="error">
+          <div class="errormsg">{{error}}</div>
+    </div>
+        <div class="form-field">
+          <input type="submit" value="Register" [disabled]='!registerForm.form.valid'>
+        </div>
+      </form>
+      <p>
+        <input type="submit" value="login" (click)="router.navigate(['/login']);" class="navbtn">
+      </p>
+    </div>
+</div>
